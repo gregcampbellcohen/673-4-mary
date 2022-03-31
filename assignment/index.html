@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8 />
+	<title>MAP673 Assignment 04 starter</title>
+  <meta
+  name="viewport"
+  content="initial-scale=1,maximum-scale=1,user-scalable=no"
+/>
+<link
+  href="https://api.mapbox.com/mapbox-assembly/v0.24.0/assembly.min.css"
+  rel="stylesheet"
+/>
+<script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+/>
+
+	<style>
+	</style>
+</head>
+
+<body>
+
+  <div class='flex-parent viewport-full relative scroll-hidden'>
+    <div class='flex-child w-full w300-ml absolute static-ml left bottom'>
+      <div class='flex-parent flex-parent--column viewport-third h-full-ml hmax-full bg-white py18 px12'>
+        <div class='flex-child flex-child--grow px40 py40 scroll-auto'>
+          <h1 class='txt-h1 mb6'>Title here</h1>
+          <p>I love cheese, especially halloumi taleggio. Everyone loves stinking bishop camembert de normandie cut the cheese macaroni cheese mascarpone parmesan blue castello. Halloumi roquefort the big cheese cow cheesecake when the cheese comes out everybody's happy halloumi swiss. Caerphilly cream cheese cottage cheese red leicester halloumi cheesy feet airedale mozzarella. Fondue gouda fromage frais.</p>
+          <h2 class='txt-xl mt18 mb12'>subheading</h2>
+          <p>Parmesan caerphilly bocconcini. Dolcelatte red leicester babybel pepper jack danish fontina cut the cheese fromage frais cheese and wine. Cheese on toast chalk and cheese everyone loves jarlsberg cream cheese mozzarella halloumi boursin. Manchego danish fontina when the cheese comes out everybody's happy cut the cheese goat goat stinking bishop st. agur blue cheese. Fromage stinking bishop.</p>
+        </div>
+        <footer class='px12 py12 bg-gray-faint txt-s'>
+          <ul>
+            <li>Explore the raw
+              <a class='link' href='#'>data</a>
+            </li>
+            <li>Map authored by
+              <a class='link' href='https://www.twitter.com/gcampbellcohen'>Greg Campbell-Cohen</a>
+            </li>
+          </ul>
+        </footer>
+      </div>
+    </div>
+    <div class='flex-child flex-child--grow viewport-twothirds viewport-full-ml'>
+      <div id="map" class='viewport-twothirds viewport-full-ml'></div>
+    </div>
+  </div>
+  <!-- ui slider -->
+<div id='slider' class='range w240 bg-white round-ml px12'>
+	<input type="range" >
+  </div>
+  
+  <!-- legend -->
+  <div id='legend' class='bg-white round-ml px18 py12'>
+	<h3 class='txt-bold mb12 w-full mx-auto'>Legend Title</h3>
+	<div class='bg-blue h180 w240 mx-auto'></div>
+  </div>
+  <script async defer src="https://api.mapbox.com/mapbox-assembly/v0.24.0/assembly.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+ <!-- <script src='js/app.js'></script>-->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+    <script>
+		// map options
+		var options = {
+		  center: [-.23, 37.8],
+		  zoom: 10,
+		  maxZoom: 20,
+		  minZoom: 5,
+      zoomSnap: .1,
+      maxBounds: L.latLngBounds([-6.22, 27.72], [5.76, 47.83])
+		};
+  
+		// create a Leaflet map in our division container with id of 'map'
+		var map = L.map("map", options);
+  
+		// Leaflet providers base map URL
+		var basemap_source =
+		  "	https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
+  
+		// Leaflet providers attributes
+		var basemap_options = {
+		  attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+		  subdomains: "abcd",
+		};
+  
+		// request some basemap tiles and add to the map
+    var tiles = L.tileLayer(basemap_source, basemap_options).addTo(map);
+    
+	omnivore.csv('data/kenya_education_2014.csv')
+    .on('ready', function(e) {
+        // access to the GeoJSON here!
+        console.log(e.target.toGeoJSON())
+    })
+    .on('error', function(e) {
+        console.log(e.error[0].message);
+}).addTo(map);
+
+	// create Leaflet control for the legend
+var legendControl = L.control({
+  position: 'bottomright'
+});
+
+// when the control is added to the map
+legendControl.onAdd = function (map) {
+
+  // select the legend using id attribute of legend
+  var legend = L.DomUtil.get("legend");
+
+  // disable scroll and click functionality 
+  L.DomEvent.disableScrollPropagation(legend);
+  L.DomEvent.disableClickPropagation(legend);
+
+  // return the selection
+  return legend;
+
+}
+
+legendControl.addTo(map);
+
+// do the same thing for the UI slider
+var sliderControl = L.control({
+    position: 'bottomleft'
+});
+
+sliderControl.onAdd = function(map) {
+
+  var controls = L.DomUtil.get("slider");
+
+  L.DomEvent.disableScrollPropagation(controls);
+  L.DomEvent.disableClickPropagation(controls);
+
+  return controls;
+
+}
+
+sliderControl.addTo(map);
+	  </script>
+</body>
+</html>
